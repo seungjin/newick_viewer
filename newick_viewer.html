@@ -131,7 +131,7 @@ $(function() {
 		//console.log(">>"+baseURI);
 		for (var i = 0; i < data.files.length; i++) {
 	     	var file = data.files[i];
-			console.log(baseURI+file.fileName);
+			//console.log(baseURI+file.fileName);
 			if ( file.type.match('image.*')) {
 				file_list = file_list + "<br/>" + "<img src='"+baseURI+file.fileName+"'></img><br/>" + file.fileName;
 	    	} else {
