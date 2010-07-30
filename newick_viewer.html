@@ -23,16 +23,18 @@ p {
 	left: 250px;
 	right: 10px;
 	min-height: 500px;
-	border: 3px dashed #ccc;
-	margin: 10px;
-	padding: 10px;
+	/*
+	border: 3px dashed #66CCFF;
+	*/
+	margin: 3px;
+	padding: 3px;
 	height: 80%;
 }
 
 #svgCanvas {
 	position:relative;
 	min-height: 500px;
-	border: 3px dashed #ccc;
+	border: 2px dashed #ccc;
 	margin: 10px;
 	padding: 10px;
 }
@@ -40,7 +42,7 @@ p {
 #svgCanvas2 {
 	position:relative;
 	min-height: 500px;
-	border: 3px dashed #ccc;
+	border: 2px dashed #ccc;
 	margin: 10px;
 	padding: 10px;
 }
@@ -70,42 +72,27 @@ p {
 <script type="text/javascript" charset="utf-8">
 
 
-var readNewick = function(newick_strings) {
-	//$('#content').html("<pre>"+newick_strings+"</pre>");
-	alert(newick_string);
-} 
 
-var magic = function() {
-	var dataObject = '(((Espresso:2,(Milk Foam:2,Espresso Macchiato:5,((Steamed Milk:2,Cappucino:2,(Whipped Cream:1,Chocolate Syrup:1,Cafe Mocha:3):5):5,Flat White:2):5):5):1,Coffee arabica:0.1,(Columbian:1.5,((Medium Roast:1,Viennese Roast:3,American Roast:5,Instant Coffee:9):2,Heavy Roast:0.1,French Roast:0.2,European Roast:1):5,Brazilian:0.1):1):1,Americano:10,Water:1);';
-				phylocanvas = new Smits.PhyloCanvas(
-					dataObject,
-					'svgCanvas', 
-					500, 
-					500
-				);
-				
-				
-				
+var magic = function(m) {
+	
+	dataObject = m;
+	
+	// first
+	phylocanvas = new Smits.PhyloCanvas( dataObject, 'svgCanvas',  800, 800 );
+			
+	// second	
 	YUI().use('oop', 'json-stringify', 'io-base', 'event', 'event-delegate', function(Y){
-							var uri = "./6-coffee.xml";
-							uri += "?" + new Date().getTime();			
-							function complete(id, o, args) {
-								var data = o.responseXML; // Response data.
-								var dataObject = {
-											xml: data,
-											fileSource: true
-										};		
-								phylocanvas = new Smits.PhyloCanvas(
-									dataObject,
-									'svgCanvas2', 
-									800, 800,
-									'circular'
-								);
-								init(); //unitip
-							};
-							Y.on('io:complete', complete, Y);
-							var request = Y.io(uri);
-						});
+		var uri = "./coffee.xml";
+		uri += "?" + new Date().getTime();			
+		function complete(id, o, args) {
+			var data = o.responseXML; // Response data.
+			var dataObject = { xml: data, fileSource: true};		
+			phylocanvas = new Smits.PhyloCanvas( dataObject, 'svgCanvas2',  800, 800,'circular' );
+			init(); //unitip
+		};
+		Y.on('io:complete', complete, Y);
+		var request = Y.io(uri);
+	});
 	
 }
 
@@ -151,7 +138,7 @@ $(function() {
 				var reader = new FileReader();
 				reader.readAsText(file);
 				//reader.onload = function(e) { readNewick(e.target.result); }
-				magic();
+				reader.onload = function(e) { magic(e.target.result); }
 			}
 		}
 		console.log(file_list);
