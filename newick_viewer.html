@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset=utf-8 />
-<title>Basic Drag and Drop</title>
+<title>Newick viewer</title>
 <style>
 
 p {
@@ -29,49 +29,52 @@ p {
 	height: 80%;
 }
 
+#svgCanvas {
+	position:relative;
+	left: 20px;
+}
+
+#svgCanvas2 {
+	position:relative;
+	top: 20px;
+}
 </style>
 
 </head>
 <body>
-  <div id="dropzone">Drop your file</div>
-  <div id="viewer">
-  	<div id="content"></div>
-  </div>
-
+	<div id="dropzone">Drop your file</div>
+	<div id="viewer">
+		<div id="content"></div>
+		<div id="svgCanvas"></div>
+		<div id="svgCanvas2"></div>
+  	</div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="text/javascript"charset="utf-8"></script>
 
+<script type="text/javascript" src="http://www.jsphylosvg.com/js/raphael/raphael-min.js" ></script>
+<script type="text/javascript" src="http://www.jsphylosvg.com/js/jsphylosvg-min.js"></script>
+
+<script type="text/javascript" src="http://www.jsphylosvg.com/js/yui/build/yui/yui.js"></script> 
+<script type="text/javascript" src="http://www.jsphylosvg.com/js/jsphylosvg-min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="http://www.jsphylosvg.com/js/unitip/css/unitip.css" > 
+<script type="text/javascript" src="http://www.jsphylosvg.com/js/unitip/js/unitip.js"></script> 	
+
+
 <script type="text/javascript" charset="utf-8">
 
-var getAsText = function(readFile) {
-	
-	var reader = new FileReader();
-	
-	// Read file into memory as UTF-16
-	reader.readAsText(readFile, "UTF-16");
-	
-	// Handle progress, success, and errors
-	//reader.onprogress = updateProgress;
-	alert(reader);
-	reader.onload = loaded;
-	
-	//reader.onerror = errorHandler;
-}
 
-var loaded = function(evt) {
-	// Obtain the read file data
-	var fileString = evt.target.result;
-	// Handle UTF-16 file dump
-	console.log(fileString);
-}
-
+var readNewick = function(newick_strings) {
+	$('#content').html(newick_strings);
+	
+} 
 
 $(function() {
     
     /* We cannot use $.bind() since jQuery does not normalize the native events. */
     $('#dropzone')
         .get(0)
-        .addEventListener('drop', aa, false);
+        .addEventListener('drop', drop, false);
 
     $('#dropzone')
         .get(0)
@@ -91,36 +94,66 @@ $(function() {
                 event.preventDefault(); 
             }, false);
 
-    function aa(event) {
+    function drop(event) {
 		data = event.dataTransfer;
-		console.log(event);
-		console.log(event.rangeParent.baseURI);
 		event.stopPropagation();
 		file = event.rangeParent.baseURI;
 		file_list = "";
 
-		baseURI = event.rangeParent.baseURI.substr(0,(file.length - 10));
+		baseURI = event.rangeParent.baseURI.substr(0,(file.length - 18));
 		console.log(">>"+baseURI);
 		for (var i = 0; i < data.files.length; i++) {
 	     	var file = data.files[i];
-			console.log(file);
-			file_list = file_list + "<br/>" + "<img src='"+baseURI+file.fileName+"'></img><br/>" + file.fileName;
-	    	getAsText(file);
+			console.log(baseURI+file.fileName);
+			if ( file.type.match('image.*')) {
+				file_list = file_list + "<br/>" + "<img src='"+baseURI+file.fileName+"'></img><br/>" + file.fileName;
+	    	} else {
+				var reader = new FileReader();
+				reader.readAsText(file);
+				reader.onload = function(e) { readNewick(e.target.result); }
+			}
 		}
 		console.log(file_list);
+		
 		$('#content').html(file_list);
 		
 		
 	}
 	
-
+	var dataObject = '(((Espresso:2,(Milk Foam:2,Espresso Macchiato:5,((Steamed Milk:2,Cappucino:2,(Whipped Cream:1,Chocolate Syrup:1,Cafe Mocha:3):5):5,Flat White:2):5):5):1,Coffee arabica:0.1,(Columbian:1.5,((Medium Roast:1,Viennese Roast:3,American Roast:5,Instant Coffee:9):2,Heavy Roast:0.1,French Roast:0.2,European Roast:1):5,Brazilian:0.1):1):1,Americano:10,Water:1);';
+				phylocanvas = new Smits.PhyloCanvas(
+					dataObject,
+					'svgCanvas', 
+					500, 
+					500
+				);
+				
+				
+				
+				YUI().use('oop', 'json-stringify', 'io-base', 'event', 'event-delegate', function(Y){
+							var uri = "http://www.jsphylosvg.com/trees/6-coffee.xml";
+							uri += "?" + new Date().getTime();			
+							function complete(id, o, args) {
+								var data = o.responseXML; // Response data.
+								var dataObject = {
+											xml: data,
+											fileSource: true
+										};		
+								phylocanvas = new Smits.PhyloCanvas(
+									dataObject,
+									'svgCanvas2', 
+									800, 800,
+									'circular'
+								);
+								init(); //unitip
+							};
+							Y.on('io:complete', complete, Y);
+							var request = Y.io(uri);
+						});
 	
-
 	
 	
-	
-    
-   
+ 
 });
 </script>
 </body>
