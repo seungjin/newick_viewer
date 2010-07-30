@@ -150,7 +150,7 @@ $(function() {
 	    	} else {
 				var reader = new FileReader();
 				reader.readAsText(file);
-				reader.onload = function(e) { readNewick(e.target.result); }
+				//reader.onload = function(e) { readNewick(e.target.result); }
 				magic();
 			}
 		}
